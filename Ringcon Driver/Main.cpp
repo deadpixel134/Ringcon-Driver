@@ -74,9 +74,9 @@ wxCheckBox* gyroCheckBox;
 
 int subloop = 0;
 
-int Ringcon = 0x0A;
-int prevRingcon = 0x0A;
-int ringconcounter = 0;
+int Ringcon = 0;
+int prevRingcon = 0;
+int ringconcounter = 10;
 
 #define runarraylength 50
 int runningindex[runarraylength] = { 0 };
@@ -398,7 +398,7 @@ void handle_input(Joycon* jc, uint8_t* packet, int len) {
 	}
 
 
-
+	Sleep(1);
 
 
 
@@ -408,13 +408,14 @@ void handle_input(Joycon* jc, uint8_t* packet, int len) {
 		bool lightpull = false;
 		bool heavypress = false;
 		bool heavypull = false;
+		
 
 		// right:
 		if (jc->left_right == 2 && ringconattached) {
 			//Ringcon logic - Default values - int prevringcon = 0x0A; int ringconcounter = 0;
 
 			Ringcon = packet[40];
-			
+
 			if (Ringcon == 0x00) { //The Ringcon reading has started randomly putting zero in to the reading, I must not be initializing it properly. This is a hack to get around that.
 				Ringcon = prevRingcon;
 			}
@@ -504,9 +505,9 @@ void handle_input(Joycon* jc, uint8_t* packet, int len) {
 		if (jc->left_right == 1) {
 
 			if (settings.debugMode) {
-				printf("U: %d D: %d L: %d R: %d LL: %d ZL: %d SB: %d SL: %d SR: %d M: %d C: %d SX: %.5f SY: %.5f GR: %06d GP: %06d GY: %06d\n", \
-					jc->btns.up, jc->btns.down, jc->btns.left, jc->btns.right, jc->btns.l, jc->btns.zl, jc->btns.stick_button, jc->btns.sl, jc->btns.sr, \
-					jc->btns.minus, jc->btns.capture, (jc->stick.CalX + 1), (jc->stick.CalY + 1), (int)jc->gyro.roll, (int)jc->gyro.pitch, (int)jc->gyro.yaw);
+				/*printf("U: %d D: %d L: %d R: %d LL: %d ZL: %d SB: %d SL: %d SR: %d M: %d C: %d SX: %.5f SY: %.5f GR: %06d GP: %06d GY: %06d\n", \
+									jc->btns.up, jc->btns.down, jc->btns.left, jc->btns.right, jc->btns.l, jc->btns.zl, jc->btns.stick_button, jc->btns.sl, jc->btns.sr, \
+					jc->btns.minus, jc->btns.capture, (jc->stick.CalX + 1), (jc->stick.CalY + 1), (int)jc->gyro.roll, (int)jc->gyro.pitch, (int)jc->gyro.yaw);*/
 			}
 			if (settings.writeDebugToFile) {
 				fprintf(settings.outputFile, "U: %d D: %d L: %d R: %d LL: %d ZL: %d SB: %d SL: %d SR: %d M: %d C: %d SX: %.5f SY: %.5f GR: %06d GP: %06d GY: %06d\n", \
@@ -624,9 +625,12 @@ void handle_input(Joycon* jc, uint8_t* packet, int len) {
 
 
 			if (settings.debugMode) {
-				printf("A: %d B: %d X: %d Y: %d RR: %d ZR: %d SB: %d SL: %d SR: %d P: %d H: %d SX: %.5f SY: %.5f GR: %06d GP: %06d GY: %06d\n", \
+				//printf("Ringcon %d\n", packet[40]);
+				//printf("Ringconcount %d\n", ringconcounter);
+				//printf("buf %d\n", buf[40]);
+				/*printf("A: %d B: %d X: %d Y: %d RR: %d ZR: %d SB: %d SL: %d SR: %d P: %d H: %d SX: %.5f SY: %.5f GR: %06d GP: %06d GY: %06d\n", \
 					jc->btns.a, jc->btns.b, jc->btns.x, jc->btns.y, jc->btns.r, jc->btns.zr, jc->btns.stick_button, jc->btns.sl, jc->btns.sr, \
-					jc->btns.plus, jc->btns.home, (jc->stick.CalX + 1), (jc->stick.CalY + 1), (int)jc->gyro.roll, (int)jc->gyro.pitch, (int)jc->gyro.yaw);
+					jc->btns.plus, jc->btns.home, (jc->stick.CalX + 1), (jc->stick.CalY + 1), (int)jc->gyro.roll, (int)jc->gyro.pitch, (int)jc->gyro.yaw);*/
 			}
 			if (settings.writeDebugToFile) {
 				fprintf(settings.outputFile, "A: %d B: %d X: %d Y: %d RR: %d ZR: %d SB: %d SL: %d SR: %d P: %d H: %d SX: %.5f SY: %.5f GR: %06d GP: %06d GY: %06d\n", \
@@ -700,13 +704,13 @@ void handle_input(Joycon* jc, uint8_t* packet, int len) {
 
 			if (settings.debugMode) {
 
-				printf("U: %d D: %d L: %d R: %d LL: %d ZL: %d SB: %d SL: %d SR: %d M: %d C: %d SX: %.5f SY: %.5f GR: %06d GP: %06d GY: %06d\n", \
+				/*printf("U: %d D: %d L: %d R: %d LL: %d ZL: %d SB: %d SL: %d SR: %d M: %d C: %d SX: %.5f SY: %.5f GR: %06d GP: %06d GY: %06d\n", \
 					jc->btns.up, jc->btns.down, jc->btns.left, jc->btns.right, jc->btns.l, jc->btns.zl, jc->btns.stick_button, jc->btns.sl, jc->btns.sr, \
 					jc->btns.minus, jc->btns.capture, (jc->stick.CalX + 1), (jc->stick.CalY + 1), (int)jc->gyro.roll, (int)jc->gyro.pitch, (int)jc->gyro.yaw);
 
 				printf("A: %d B: %d X: %d Y: %d RR: %d ZR: %d SB: %d SL: %d SR: %d P: %d H: %d SX: %.5f SY: %.5f GR: %06d GP: %06d GY: %06d\n", \
 					jc->btns.a, jc->btns.b, jc->btns.x, jc->btns.y, jc->btns.r, jc->btns.zr, jc->btns.stick_button2, jc->btns.sl, jc->btns.sr, \
-					jc->btns.plus, jc->btns.home, (jc->stick2.CalX + 1), (jc->stick2.CalY + 1), (int)jc->gyro.roll, (int)jc->gyro.pitch, (int)jc->gyro.yaw);
+					jc->btns.plus, jc->btns.home, (jc->stick2.CalX + 1), (jc->stick2.CalY + 1), (int)jc->gyro.roll, (int)jc->gyro.pitch, (int)jc->gyro.yaw);*/
 			}
 
 			if (settings.writeDebugToFile) {
@@ -1006,21 +1010,21 @@ void updateVigEmDevice2(Joycon* jc) {
 
 		if (settings.combineJoyCons) {
 			if (ringconattached) {
-				sThumbLX = (roll * joymult);
+				//sThumbLX //= (roll * 0 );
 				if (settings.RingconFullRH) {
-					sThumbLY = (yaw * joymult);
+					//sThumbLY //= (yaw * 0);
 				}
 				else {
-					sThumbLY = (pitch * joymult);
+					//sThumbLY //= (pitch * 0);
 				}
 			}
 			else {
-				sThumbLX = (yaw * joymult);
+				//sThumbLX //= (yaw * 0);
 				if (settings.RingconFullRH) {
-					sThumbLY = (pitch * joymult);
+					//sThumbLY //= (pitch * 0);
 				}
 				else {
-					sThumbLY = (roll * joymult);
+					//sThumbLY //= (roll * 0);
 				}
 				//report.wSlider = 16384 + ((Ringcon - 10) * 1640); No space on the controller for this. This is the analog version of the Ringcon.
 			}
@@ -1079,8 +1083,8 @@ void updateVigEmDevice2(Joycon* jc) {
 		if (jc->btns.right || jc->btns.y) {
 			remappedbtns += XINPUT_GAMEPAD_Y;
 		}
-		if (jc->btns.up || jc->btns.b) {
-			remappedbtns += XINPUT_GAMEPAD_X;
+		if (jc->btns.up || jc->btns.b) { // 에스트 버튼 을 락온 버튼으로 수정하기.
+			remappedbtns += XINPUT_GAMEPAD_RIGHT_THUMB;
 		}
 		if (jc->btns.down || jc->btns.x) {
 			remappedbtns += XINPUT_GAMEPAD_B;
@@ -1090,11 +1094,15 @@ void updateVigEmDevice2(Joycon* jc) {
 		if (jc->left_right == 1) {
 			remappedbtnsl = 0;
 			if (jc->btns.sr) { //run
-				remappedbtnsl += XINPUT_GAMEPAD_LEFT_THUMB;
+				sThumbLY = 32767;
 			}
-			if (jc->btns.sl) { //Sprint
-				remappedbtnsl += XINPUT_GAMEPAD_RIGHT_THUMB;
+			else {
+				sThumbLY = 0;
 			}
+
+			//if (jc->btns.sl) { //Sprint
+				//remappedbtnsl += XINPUT_GAMEPAD_LEFT_THUMB;
+			//}
 			if (jc->btns.up) {
 				remappedbtnsl += XINPUT_GAMEPAD_DPAD_UP;
 			}
@@ -1108,19 +1116,19 @@ void updateVigEmDevice2(Joycon* jc) {
 				remappedbtnsl += XINPUT_GAMEPAD_DPAD_RIGHT;
 			}
 			if (jc->btns.minus) { //Squat
-				remappedbtnsl += XINPUT_GAMEPAD_BACK;
+				remappedbtnsl += XINPUT_GAMEPAD_X;
 			}
 		}
 		if (jc->left_right == 2) {
 			remappedbtnsr = 0;
 			if (jc->btns.sr) { //Lightpull
-				remappedbtnsr += XINPUT_GAMEPAD_LEFT_SHOULDER;
-			}
-			if (jc->btns.sl) { //Lightpress
 				remappedbtnsr += XINPUT_GAMEPAD_RIGHT_SHOULDER;
 			}
+			if (jc->btns.sl) { //Lightpress
+				remappedbtnsr += XINPUT_GAMEPAD_LEFT_SHOULDER;
+			}
 			if (jc->btns.a) {
-				remappedbtnsr += XINPUT_GAMEPAD_X;
+				remappedbtnsr += XINPUT_GAMEPAD_RIGHT_THUMB;
 			}
 			if (jc->btns.y) {
 				remappedbtnsr += XINPUT_GAMEPAD_B;
@@ -1132,16 +1140,16 @@ void updateVigEmDevice2(Joycon* jc) {
 				remappedbtnsr += XINPUT_GAMEPAD_A;
 			}
 			if (jc->btns.r) { //Heavypress
-				RightTrigger = 255;
-			}
-			else {
-				RightTrigger = 0;
-			}
-			if (jc->btns.zr) { //Heavypull
 				LeftTrigger = 255;
 			}
 			else {
 				LeftTrigger = 0;
+			}
+			if (jc->btns.zr) { //Heavypull
+				RightTrigger = 255;
+			}
+			else {
+				RightTrigger = 0;
 			}
 			if (jc->btns.home) {
 				remappedbtnsr += XINPUT_GAMEPAD_START;
@@ -1304,6 +1312,7 @@ void pollLoop() {
 
 		//hid_read(jc->handle, buf, 0x40);
 		hid_read_timeout(jc->handle, buf, 0x40, 20);
+		//printf("buf %d\n", buf[40]);
 
 		handle_input(jc, buf, 0x40);
 	}
