@@ -398,7 +398,7 @@ void handle_input(Joycon* jc, uint8_t* packet, int len) {
 	}
 
 
-	Sleep(1);
+	//Sleep(1);
 
 
 
@@ -421,19 +421,19 @@ void handle_input(Joycon* jc, uint8_t* packet, int len) {
 			}
 
 			if (settings.RingconFullRH) { //The sensor readings change if it is being held sideways
-				if (Ringcon == 0x0A || Ringcon == 0x09 || Ringcon == 0x08 || Ringcon == 0x07) { //Deadzone
+				if (Ringcon == 255 || Ringcon == 0 || Ringcon == 1 || Ringcon == 254) { //Deadzone
 					ringconcounter = 0;
 				}
 
-				if (Ringcon == 0x01 || Ringcon == 0xFF || Ringcon == 0xFE) {
+				if (Ringcon == 200 || Ringcon == 202 || Ringcon == 203) {
 					heavypress = false; //turn off heavy press, may damage Ringcon as it goes outside the flex range
 					//ringconcounter = -1;
 				}
-				if (Ringcon == 0x0D || Ringcon == 0x0E || Ringcon == 0x0F) {
+				if (Ringcon == 8 || Ringcon == 9 || Ringcon == 10) {
 					heavypull = true;
 					ringconcounter = -1;
 				}
-				if (Ringcon >= 0x02 && Ringcon <= 0x06 && ringconcounter != -1) {
+				if (Ringcon >= 243 && Ringcon <= 253 && ringconcounter != -1) {
 					/*if (Ringcon < prevringcon && ringconcounter < 10) {
 						ringconcounter = 0;
 					}
@@ -445,7 +445,7 @@ void handle_input(Joycon* jc, uint8_t* packet, int len) {
 					ringconcounter = 20;
 					//}
 				}
-				if (Ringcon <= 0x0C && Ringcon >= 0x0B && ringconcounter != -1) {
+				if (Ringcon <= 7 && Ringcon >= 3 && ringconcounter != -1) {
 					if (Ringcon > prevRingcon && ringconcounter < 10) {
 						ringconcounter = 0;
 					}
@@ -542,7 +542,7 @@ void handle_input(Joycon* jc, uint8_t* packet, int len) {
 
 			//jc->btns.sl = (jc->buttons & (1 << 5)) ? 1 : 0; // set a bit: *ptr |= 1 << index;
 			//sprint button
-			if (average >= 3) { //sprint
+			if (average >= 4) { //sprint
 				jc->buttons |= 1U << 5; //sl = sprint
 			}
 			//int squatvalue = 0;
@@ -750,6 +750,17 @@ void updateVigEmDevice2(Joycon* jc) {
 		sThumbLX = MaxStick * (jc->stick.CalX);
 		sThumbLY = MaxStick * (jc->stick.CalY);
 	}
+	if (jc->left_right == 1) {
+		if (settings.RingconFullRH) {
+			sThumbLX = -MaxStick * (jc->stick.CalX);
+			sThumbLY = -MaxStick * (jc->stick.CalY);
+		}
+		else if (!settings.RingconToAnalog) {
+			sThumbLY = -MaxStick * (jc->stick.CalX);
+			sThumbLX = MaxStick * (jc->stick.CalY);
+		}
+	}
+
 	if (jc->left_right== 2) {
 		if (settings.RingconFullRH) {
 			sThumbRX = -MaxStick * (jc->stick.CalX);
@@ -1007,24 +1018,24 @@ void updateVigEmDevice2(Joycon* jc) {
 		if (Ringcon == 0x0A || Ringcon == 0x09 || Ringcon == 0x08 || Ringcon == 0x0B) { //Deadzone
 			Ringcon = 10;
 		}
-
+		// 이동 조작을 다리에 있는 조이콘 스틱으로 하기.
 		if (settings.combineJoyCons) {
 			if (ringconattached) {
 				//sThumbLX //= (roll * 0 );
 				if (settings.RingconFullRH) {
-					//sThumbLY //= (yaw * 0);
+					//sThumbLY = -MaxStick * (jc->stick.CalY);
 				}
 				else {
-					//sThumbLY //= (pitch * 0);
+					//sThumbLY = (pitch * 0);
 				}
 			}
 			else {
-				//sThumbLX //= (yaw * 0);
+				//sThumbLX = -MaxStick * (jc->stick.CalX);
 				if (settings.RingconFullRH) {
-					//sThumbLY //= (pitch * 0);
+					//sThumbLY = -MaxStick * (jc->stick.CalY);
 				}
 				else {
-					//sThumbLY //= (roll * 0);
+					//sThumbLY = -MaxStick * (jc->stick.CalY);
 				}
 				//report.wSlider = 16384 + ((Ringcon - 10) * 1640); No space on the controller for this. This is the analog version of the Ringcon.
 			}
@@ -1097,12 +1108,12 @@ void updateVigEmDevice2(Joycon* jc) {
 				sThumbLY = 32767;
 			}
 			else {
-				sThumbLY = 0;
+				//sThumbLY = 0;
 			}
-
-			//if (jc->btns.sl) { //Sprint
-				//remappedbtnsl += XINPUT_GAMEPAD_LEFT_THUMB;
-			//}
+			
+			if (jc->btns.sl) { //Sprint
+				remappedbtnsl += XINPUT_GAMEPAD_B;
+			}
 			if (jc->btns.up) {
 				remappedbtnsl += XINPUT_GAMEPAD_DPAD_UP;
 			}
